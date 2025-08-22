@@ -43,29 +43,32 @@ userRouter.post('/signup', async(req, res)=>{
     }
 })
 
-userRouter.post('/signin', (req, res)=>{
+userRouter.post('/signin', async(req, res)=>{
     const {username, password} = req.body;
     if(!username || !password) {
         return res.status(403).json({message:"username and password required"});
     }
     const userInfoObject = {username, password}
     const validateInfo = userSchema.safeParse(userInfoObject);
+
     if(!validateInfo.success){
         return res.status(404).json({message:"Invalid username or password format"});
     }
-
     try{
         //check username and password exists in the db
-        const userExists = userModel.findOne({username});
+        const userExists = await userModel.findOne({username});
         if(!userExists){
             return res.status(400).json({message:"Invalid username"});
         }
-        if(!userExists.password === password){
+        const validatePassword = await bcrypt.compare(password, userExists.password)
+        if(!validatePassword){
             return res.status(404).json({message:"Invalid password"})
         }
-        const token = generateToken()
+        const token = generateToken();
+        return res.status(202).json({message:"Logged In successfully", token:token})
     }catch(err){
-
+        console.log(err);
+        return res.status(500).json({message:"Internal server error"})
     }
 })
 
