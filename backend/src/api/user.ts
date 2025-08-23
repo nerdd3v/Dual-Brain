@@ -111,7 +111,7 @@ userRouter.get('/content',authMW, async (req,res)=>{
         const data = await contentModel.find({user: user._id}).populate("username");
         return res.status(202).json({content: data})
     } catch (error) {
-        
+        return res.status(500).json({message:"internal server error"})
     }
 })
 
