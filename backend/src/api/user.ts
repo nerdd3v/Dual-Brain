@@ -115,6 +115,28 @@ userRouter.get('/content',authMW, async (req,res)=>{
     }
 })
 
+userRouter.delete('/content',authMW,async(req,res)=>{
+    //@ts-ignore
+    const user = req.user;
+    const {contentId} = req.body;
+    if(!user){
+        return res.status(404).json({message:'You are not authorized'});
+    }
+    try {
+        const contentExists = await contentModel.findById(contentId)
+         if (!contentExists) {
+            return res.status(404).json({ message: "Content not found" });
+        }
+         if (contentExists.user.toString() !== user._id.toString()) {
+            return res.status(403).json({ message: "You are not allowed to delete this content" });
+         }
+        await contentModel.deleteOne({_id: contentId});
+        return res.status(200).json({message:"Deleted successfully"})
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error"})
+    }
+})
+
 
 module.exports = {
     userRouter
