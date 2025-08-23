@@ -12,7 +12,9 @@ import {bcryptPass} from '../../.env';
 import {generateToken} from '../middleWares/generateToken.ts'
 //@ts-ignore
 import {authMW} from '../middleWares/authMW.ts'
-import { da } from "zod/locales";
+import {random} from '../middleWares/randomHash.js';
+//@ts-ignore
+import {linkModel} from '../db/db.js'
 
 const userRouter: express.Router = express.Router();
 
@@ -137,6 +139,44 @@ userRouter.delete('/content',authMW,async(req,res)=>{
     }
 })
 
+userRouter.post('/share',authMW, async(req,res)=>{
+    //@ts-ignore
+    const user = req.user;
+    if(!user){
+        return res.status(203).json({message:"You are not authorised"})
+    }
+    const {share} = req.body;
+    try {
+        if(share){
+            const existingHash = await linkModel.findOne({userID: user._id});
+            if(existingHash){
+                return res.json(existingHash)
+            }
+            //generate hash;
+            const hash = random(10);
+            const linkSchemUpdate = await linkModel.create({hash, userID: user._id});
+            return res.json({hash});
+        }
+        await linkModel.deleteOne({userID: user._id});
+        res.json({message:"removed shareable link"})
+
+    } catch (error) {
+        return res.status(500).json({message:"Internal error occurred"})
+    }
+})
+
+userRouter.get('/share/:shareLink',authMW, async(req, res)=>{
+    //@ts-ignore
+    const user = req.user;
+    const hash = req.params.shareLink;
+
+    if(!user){
+        return res.status(404).json({message:"You are not authorised"});
+    }
+    if(!hash){
+        
+    }
+})
 
 module.exports = {
     userRouter
