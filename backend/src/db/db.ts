@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { ta } from "zod/locales";
+
 
 const userSchema  = new mongoose.Schema({
     username: {
