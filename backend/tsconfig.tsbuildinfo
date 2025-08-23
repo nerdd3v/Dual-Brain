@@ -1,1 +1,1 @@
-{"root":["./src/index.ts"],"version":"5.9.2"}
+{"root":["./src/index.ts","./src/api/user.ts","./src/db/db.ts","./src/middlewares/authmw.ts","./src/middlewares/generatetoken.ts"],"version":"5.9.2"}

@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
     "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/mongoose": "^5.11.97",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",

@@ -1,10 +1,18 @@
 import express from "express";
 //@ts-ignore
 import {userModel} from '../db/db.js';
+//@ts-ignore
+import {contentModel} from '../db/db.js';
 import { z } from 'zod';
+//@ts-ignore
 import bcrypt from 'bcrypt';
+//@ts-ignore
 import {bcryptPass} from '../../.env';
-import {generateToken} from '../middleWares/generateToken.js'
+//@ts-ignore
+import {generateToken} from '../middleWares/generateToken.ts'
+//@ts-ignore
+import {authMW} from '../middleWares/authMW.ts'
+import { da } from "zod/locales";
 
 const userRouter: express.Router = express.Router();
 
@@ -73,3 +81,41 @@ userRouter.post('/signin', async(req, res)=>{
 })
 
 
+userRouter.post('/content',authMW, async(req, res)=>{
+    const {title, link, url, tags} = req.body;
+    if(!title || !link || !url ){
+        return res.status(403).json({message:"Content not provided"})
+    }
+    //@ts-ignore
+    const user = req.user;
+    if(!user){
+        return res.status(400).json({message:"You are not authorised"});
+    }
+    try {
+        const contentInfo = contentModel({title, link, url, userID: user._id, tags});
+        await contentInfo.save();
+        return res.status(200).json({message: "Content posted successfully"})
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error"})
+    }
+    
+})
+
+userRouter.get('/content',authMW, async (req,res)=>{
+    //@ts-ignore
+    const user = req.user;
+    if(!user){
+        return res.status(400).json({message:"You are not authorised"});   
+    }
+    try {
+        const data = await contentModel.find({user: user._id}).populate("username");
+        return res.status(202).json({content: data})
+    } catch (error) {
+        
+    }
+})
+
+
+module.exports = {
+    userRouter
+}
