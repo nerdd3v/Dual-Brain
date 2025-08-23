@@ -154,7 +154,7 @@ userRouter.post('/share',authMW, async(req,res)=>{
             }
             //generate hash;
             const hash = random(10);
-            const linkSchemUpdate = await linkModel.create({hash, userID: user._id});
+            await linkModel.create({hash, userID: user._id});
             return res.json({hash});
         }
         await linkModel.deleteOne({userID: user._id});
@@ -174,7 +174,7 @@ userRouter.get('/share/:shareLink',authMW, async(req, res)=>{
         return res.status(404).json({message:"You are not authorised"});
     }
     if(!hash){
-        
+        return res.status(400).json({message:"No parameter provided"});
     }
 })
 
