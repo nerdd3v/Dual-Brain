@@ -176,6 +176,23 @@ userRouter.get('/share/:shareLink',authMW, async(req, res)=>{
     if(!hash){
         return res.status(400).json({message:"No parameter provided"});
     }
+
+    try {
+        const contentUser = await linkModel.findOne({hash});
+        if(!contentUser){
+            return res.status(400).json({message:"Invalid Hash"})
+        }
+        const userKnown = contentUser.userID;
+        
+
+        const content = await contentModel.find({user: userKnown});
+        if(!content){
+            return res.status(404).json({message:"Content not found"})
+        }
+        return res.json({content})
+    } catch (error) {
+        return res.status(500).json({message:"Internal server error"})
+    }
 })
 
 module.exports = {
